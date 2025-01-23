@@ -1,0 +1,9 @@
+services:
+  m-discord-bot:
+    container_name: "m-discord-bot"
+    image: "m-discord-bot"
+    restart: "unless-stopped"
+    build:
+      context: "./"
+      dockerfile: "./Dockerfile"
+    env_file: ".env"
