@@ -1,0 +1,12 @@
+**/.git
+**/node_modules
+
+# envs
+.env
+.env.production
+.env.development
+
+# misc
+.DS_Store
+Dockerfile
+README.md
