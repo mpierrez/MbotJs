@@ -66,6 +66,6 @@ const combinaisonLineaireToLatex = (v1, v2, v3, w) => {
     return `v1 = (${v1.x}, ${v1.y}, ${v1.z}), v2 = (${v2.x}, ${v2.y}, ${v2.z}), v3 = (${v3.x}, ${v3.y}, ${v3.z}), w = (${w.x}, ${w.y}, ${w.z})`;
 }
 
-module.exports = { 
-    systemToLatex, showMatrix3x3, gaussSystemToLatex, matrixToLatex, sousEspaceVectorielToLatex, familyToLatex, combinaisonLineaireToLatex
+module.exports = {
+    systemToLatex, gaussSystemToLatex, matrixToLatex, sousEspaceVectorielToLatex, familyToLatex, combinaisonLineaireToLatex
 }
