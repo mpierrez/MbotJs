@@ -8,8 +8,8 @@ const generateMatrix = (size = 3) => {
 
 const getMinor = (matrix, row, col) => {
     return matrix
-        .filter((_, i) => i !== row)
-        .map(row => row.filter((_, j) => j !== col));
+        .filter((_, i) => i !== row-1)
+        .map(row => row.filter((_, j) => j !== col-1));
 };
 
 // Fonction pour calculer le déterminant d'une matrice 2x2
@@ -26,8 +26,7 @@ const determinantSarrus = (matrix) => {
 
 // Fonction pour calculer le cofacteur d'un mineur
 const getCofactor = (matrix, row, col) => {
-    const minor = getMinor(matrix, row-1, col-1);
-    console.log("Mineur " + row + " " + col + " : " + minor);
+    const minor = getMinor(matrix, row, col);
     const sign = (row + col) % 2 === 0 ? 1 : -1;
     return sign * determinant2x2(minor);
 };

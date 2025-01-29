@@ -30,9 +30,9 @@ module.exports = {
 
         \\text{Cela nous donne la matrice suivante :} \\\\
         \\begin{bmatrix}
-            ${i === 0 || j === 0 ? `\\color{Red}{${matrix3x3[0][0]}}` : matrix3x3[0][0]} & ${i === 0 || j === 1 ? `\\color{Red}{${matrix3x3[0][1]}}` : matrix3x3[0][1]} & ${i === 0 || j === 2 ? `\\color{Red}{${matrix3x3[0][2]}}` : matrix3x3[0][2]} \\\\
-            ${i === 1 || j === 0 ? `\\color{Red}{${matrix3x3[1][0]}}` : matrix3x3[1][0]} & ${i === 1 || j === 1 ? `\\color{Red}{${matrix3x3[1][1]}}` : matrix3x3[1][1]} & ${i === 1 || j === 2 ? `\\color{Red}{${matrix3x3[1][2]}}` : matrix3x3[1][2]} \\\\
-            ${i === 2 || j === 0 ? `\\color{Red}{${matrix3x3[2][0]}}` : matrix3x3[2][0]} & ${i === 2 || j === 1 ? `\\color{Red}{${matrix3x3[2][1]}}` : matrix3x3[2][1]} & ${i === 2 || j === 2 ? `\\color{Red}{${matrix3x3[2][2]}}` : matrix3x3[2][2]} \\\\
+            ${i === 1 || j === 1 ? `{\\color{Red}${matrix3x3[0][0]}}` : matrix3x3[0][0]} & ${i === 1 || j === 2 ? `{\\color{Red}${matrix3x3[0][1]}}` : matrix3x3[0][1]} & ${i === 1 || j === 3 ? `{\\color{Red}${matrix3x3[0][2]}}` : matrix3x3[0][2]} \\\\
+            ${i === 2 || j === 1 ? `{\\color{Red}${matrix3x3[1][0]}}` : matrix3x3[1][0]} & ${i === 2 || j === 2 ? `{\\color{Red}${matrix3x3[1][1]}}` : matrix3x3[1][1]} & ${i === 2 || j === 3 ? `{\\color{Red}${matrix3x3[1][2]}}` : matrix3x3[1][2]} \\\\
+            ${i === 3 || j === 1 ? `{\\color{Red}${matrix3x3[2][0]}}` : matrix3x3[2][0]} & ${i === 3 || j === 2 ? `{\\color{Red}${matrix3x3[2][1]}}` : matrix3x3[2][1]} & ${i === 3 || j === 3 ? `{\\color{Red}${matrix3x3[2][2]}}` : matrix3x3[2][2]} \\\\
         \\end{bmatrix} \\\\\\\\
         
         \\text{Voici donc le mineur } M_{${i},${j}} \\\\

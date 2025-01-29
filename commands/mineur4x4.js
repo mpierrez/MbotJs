@@ -41,10 +41,10 @@ module.exports = {
 
         \\text{Cela nous donne la matrice suivante :} \\\\
         \\begin{bmatrix}
-            ${i === 0 || j === 0 ? `\\color{Red}{${matrix4x4[0][0]}}` : matrix4x4[0][0]} & ${i === 0 || j === 1 ? `\\color{Red}{${matrix4x4[0][1]}}` : matrix4x4[0][1]} & ${i === 0 || j === 2 ? `\\color{Red}{${matrix4x4[0][2]}}` : matrix4x4[0][2]} & ${i === 0 || j === 3 ? `\\color{Red}{${matrix4x4[0][3]}}` : matrix4x4[0][3]} \\\\
-            ${i === 1 || j === 0 ? `\\color{Red}{${matrix4x4[1][0]}}` : matrix4x4[1][0]} & ${i === 1 || j === 1 ? `\\color{Red}{${matrix4x4[1][1]}}` : matrix4x4[1][1]} & ${i === 1 || j === 2 ? `\\color{Red}{${matrix4x4[1][2]}}` : matrix4x4[1][2]} & ${i === 1 || j === 3 ? `\\color{Red}{${matrix4x4[1][3]}}` : matrix4x4[1][3]} \\\\
-            ${i === 2 || j === 0 ? `\\color{Red}{${matrix4x4[2][0]}}` : matrix4x4[2][0]} & ${i === 2 || j === 1 ? `\\color{Red}{${matrix4x4[2][1]}}` : matrix4x4[2][1]} & ${i === 2 || j === 2 ? `\\color{Red}{${matrix4x4[2][2]}}` : matrix4x4[2][2]} & ${i === 2 || j === 3 ? `\\color{Red}{${matrix4x4[2][3]}}` : matrix4x4[2][3]} \\\\
-            ${i === 3 || j === 0 ? `\\color{Red}{${matrix4x4[3][0]}}` : matrix4x4[3][0]} & ${i === 3 || j === 1 ? `\\color{Red}{${matrix4x4[3][1]}}` : matrix4x4[3][1]} & ${i === 3 || j === 2 ? `\\color{Red}{${matrix4x4[3][2]}}` : matrix4x4[3][2]} & ${i === 3 || j === 3 ? `\\color{Red}{${matrix4x4[3][3]}}` : matrix4x4[3][3]} \\\\
+            ${i === 1 || j === 1 ? `{\\color{Red}${matrix4x4[0][0]}}` : matrix4x4[0][0]} & ${i === 1 || j === 2 ? `{\\color{Red}${matrix4x4[0][1]}}` : matrix4x4[0][1]} & ${i === 1 || j === 3 ? `{\\color{Red}${matrix4x4[0][2]}}` : matrix4x4[0][2]} & ${i === 1 || j === 4 ? `{\\color{Red}${matrix4x4[0][3]}}` : matrix4x4[0][3]} \\\\
+            ${i === 2 || j === 1 ? `{\\color{Red}${matrix4x4[1][0]}}` : matrix4x4[1][0]} & ${i === 2 || j === 2 ? `{\\color{Red}${matrix4x4[1][1]}}` : matrix4x4[1][1]} & ${i === 2 || j === 3 ? `{\\color{Red}${matrix4x4[1][2]}}` : matrix4x4[1][2]} & ${i === 2 || j === 4 ? `{\\color{Red}${matrix4x4[1][3]}}` : matrix4x4[1][3]} \\\\
+            ${i === 3 || j === 1 ? `{\\color{Red}${matrix4x4[2][0]}}` : matrix4x4[2][0]} & ${i === 3 || j === 2 ? `{\\color{Red}${matrix4x4[2][1]}}` : matrix4x4[2][1]} & ${i === 3 || j === 3 ? `{\\color{Red}${matrix4x4[2][2]}}` : matrix4x4[2][2]} & ${i === 3 || j === 4 ? `{\\color{Red}${matrix4x4[2][3]}}` : matrix4x4[2][3]} \\\\
+            ${i === 4 || j === 1 ? `{\\color{Red}${matrix4x4[3][0]}}` : matrix4x4[3][0]} & ${i === 4 || j === 2 ? `{\\color{Red}${matrix4x4[3][1]}}` : matrix4x4[3][1]} & ${i === 4 || j === 3 ? `{\\color{Red}${matrix4x4[3][2]}}` : matrix4x4[3][2]} & ${i === 4 || j === 4 ? `{\\color{Red}${matrix4x4[3][3]}}` : matrix4x4[3][3]} \\\\
         \\end{bmatrix} \\\\\\\\
         
         \\text{Voici donc le mineur } M_{${i},${j}} \\\\
