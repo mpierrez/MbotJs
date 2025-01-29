@@ -6,6 +6,32 @@ const generateMatrix = (size = 3) => {
     });
 };
 
+const generateEasyMatrix = (size = 3) => {
+    let matrix;
+    let det;
+    
+    do {
+        matrix = Array.from({ length: size }, () => 
+            Array.from({ length: size }, () => [-2, -1, 0, 1, 2].sort(() => Math.random() - 0.5)[0])
+        );
+
+        det = determinant(matrix);
+    } while (det === 0 || Math.abs(det) > 5);
+    
+    return matrix;
+};
+
+const determinant = (matrix) => {
+    const size = matrix.length;
+    if (size === 1) return matrix[0][0];
+    if (size === 2) return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
+    return matrix[0].reduce((det, val, col) => {
+        const subMatrix = matrix.slice(1).map(row => row.filter((_, j) => j !== col));
+        return det + val * determinant(subMatrix) * (col % 2 === 0 ? 1 : -1);
+    }, 0);
+};
+
 const getMinor = (matrix, row, col) => {
     return matrix
         .filter((_, i) => i !== row-1)
@@ -46,5 +72,5 @@ const addMatrices = (a, b) =>
     );
 
 module.exports = {
-    generateMatrix, getMinor, determinant2x2, getCofactor, determinantSarrus, addMatrices, multiplyMatrices
+    generateMatrix, generateEasyMatrix, getMinor, determinant2x2, getCofactor, determinantSarrus, addMatrices, multiplyMatrices
 };
