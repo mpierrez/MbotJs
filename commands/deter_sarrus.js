@@ -78,6 +78,6 @@ module.exports = {
 
         // Envoi de l'énoncé et de la solution à l'utilisateur
         await interaction.user.send({ content: statement, files: [attachmentStatement] });
-        await interaction.user.send({ files: [attachmentResult] });
+        await interaction.user.send({ content: `**Solution détaillée :**`, files: [attachmentResult] });
     }
 };

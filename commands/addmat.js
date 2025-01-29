@@ -20,6 +20,6 @@ module.exports = {
 
         // Envoi de l'énoncé et du résultat à l'utilisateur
         await interaction.user.send({ content: `**Addition de matrices 3x3**\n\n` + `Résolvez l'addition des deux matrices suivantes (A + B) :\n`, files: [attachmentStatement] });
-        await interaction.user.send({ files: [new AttachmentBuilder(attachmentResult, { name: 'SPOILER_result.png' })]});
+        await interaction.user.send({ content: `**Solution détaillée :**`, files: [attachmentResult] });
     }
 };

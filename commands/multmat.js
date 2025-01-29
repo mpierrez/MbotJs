@@ -20,6 +20,6 @@ module.exports = {
 
         // Envoi de l'énoncé et du résultat à l'utilisateur
         await interaction.user.send({ content: `**Multiplication de matrices 3x3**\n\n` + `Résolvez la multiplication des deux matrices suivantes (A × B) :\n`, files: [attachment1] });
-        await interaction.user.send({ files: [attachment2] });    
+        await interaction.user.send({ content: `**Solution détaillée :**`, files: [attachment2] });    
     }
 };
