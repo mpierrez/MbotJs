@@ -85,8 +85,8 @@ module.exports = {
         M^{-1} = \\frac{1}{${det}} * ${matrixToLatex(transposedComatrix)} \\\\\\\\
 
         \\textbf{L'inverse de la matrice M est donc :} \\\\
-        M^{-1} = ${matrixToLatex(inverseMatrix)}
-
+        M^{-1} = ${matrixToLatex(inverseMatrix)} \\\\\\\\
+        \\text{-} \\\\
         \\end{array}`;
 
         // Génération des images

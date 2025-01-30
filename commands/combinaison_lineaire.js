@@ -8,7 +8,8 @@ module.exports = {
     description: "Vérifier si un vecteur est une combinaison linéaire de trois autres vecteurs",
 
     async run(bot, interaction) {
-        const system = generateSystem(3, Math.random() < 0.5); // 50% de chance que le système soit resolvable ou non
+        const isResolvable = Math.random() < 0.5; // 50% de chance que le système soit resolvable ou non
+        const system = generateSystem(3, isResolvable);
 
         const v1 = { x: system.coefficients[0][0], y: system.coefficients[1][0], z: system.coefficients[2][0] };
         const v2 = { x: system.coefficients[0][1], y: system.coefficients[1][1], z: system.coefficients[2][1] };
