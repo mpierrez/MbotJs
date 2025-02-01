@@ -1,5 +1,7 @@
+const { normalizeSigns } = require("./system");
+
 // Fonction pour formater une équation en LaTeX
-const systemToLatex = (coeff, result, red = [], green = [], blue = []) => {
+const systemToLatex = (coeff, result = '', red = [], green = [], blue = []) => {
     const getColor = (i, j) => {
         if (red.some(coord => coord.i === i && coord.j === j)) return "Red";
         if (green.some(coord => coord.i === i && coord.j === j)) return "DarkGreen";
@@ -11,7 +13,7 @@ const systemToLatex = (coeff, result, red = [], green = [], blue = []) => {
     for (let i = 0; i < coeff.length; i++) {
         equations += `${getColor(i, 0) ? `{\\color{${getColor(i, 0)}}` : ""}${coeff[i][0] === 1 ? '' : coeff[i][0] === -1 ? '-' : coeff[i][0]}x${getColor(i, 0) ? "}" : ""} ` +
                      `${coeff[i][1] < 0 ? '-' : '+'} ${getColor(i, 1) ? `{\\color{${getColor(i, 1)}}` : ""}${Math.abs(coeff[i][1]) === 1 ? '' : Math.abs(coeff[i][1])}y${getColor(i, 1) ? "}" : ""} ` +
-                     `${coeff[i][2] < 0 ? '-' : '+'} ${getColor(i, 2) ? `{\\color{${getColor(i, 2)}}` : ""}${Math.abs(coeff[i][2]) === 1 ? '' : Math.abs(coeff[i][2])}z${getColor(i, 2) ? "}" : ""} &= ${result[i]} \\\\ `;
+                     `${coeff[i][2] < 0 ? '-' : '+'} ${getColor(i, 2) ? `{\\color{${getColor(i, 2)}}` : ""}${Math.abs(coeff[i][2]) === 1 ? '' : Math.abs(coeff[i][2])}z${getColor(i, 2) ? "}" : ""} ${result[i] ? '&=' + result[i] : ''} \\\\ `;
     }
     return `\\begin{cases}
             ${equations}
@@ -66,6 +68,17 @@ const combinaisonLineaireToLatex = (v1, v2, v3, w) => {
     return `v1 = (${v1.x}, ${v1.y}, ${v1.z}), v2 = (${v2.x}, ${v2.y}, ${v2.z}), v3 = (${v3.x}, ${v3.y}, ${v3.z}), w = (${w.x}, ${w.y}, ${w.z})`;
 }
 
+const applicationLineaireToLatex = (system) => {
+    return `\\text{-} \\\\\\\\
+        \\forall (x,y,z) \\in \\mathbb{R}^3 : 
+            \\left< f(x,y,z) = 
+                ${normalizeSigns(system.coefficients[0][0], 'x', true)} ${normalizeSigns(system.coefficients[0][1], 'y')} ${normalizeSigns(system.coefficients[0][2], 'z')} \\:; \\:
+                ${normalizeSigns(system.coefficients[1][0], 'x', true)} ${normalizeSigns(system.coefficients[1][1], 'y')} ${normalizeSigns(system.coefficients[1][2], 'z')} \\:; \\:
+                ${normalizeSigns(system.coefficients[2][0], 'x', true)} ${normalizeSigns(system.coefficients[2][1], 'y')} ${normalizeSigns(system.coefficients[2][2], 'z')}
+            \\right> \\\\\\\\
+        \\text{-}`
+};
+
 module.exports = {
-    systemToLatex, gaussSystemToLatex, matrixToLatex, sousEspaceVectorielToLatex, familyToLatex, combinaisonLineaireToLatex
+    systemToLatex, gaussSystemToLatex, matrixToLatex, sousEspaceVectorielToLatex, familyToLatex, combinaisonLineaireToLatex, applicationLineaireToLatex
 }

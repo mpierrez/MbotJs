@@ -108,6 +108,15 @@ const formatTerm = (coef, vector, color) => {
     return `${coef} * {\\color{${color}}\\begin{pmatrix} ${vector.x} \\\\ ${vector.y} \\\\ ${vector.z} \\end{pmatrix}}`;
 };
 
+const normalizeSigns = (coef, letter, isFirst = false) => {
+    if (coef == 0) return '';
+    if (coef == 1) return `${isFirst ? '' : '+'}` + `${letter.startsWith('*') ? letter.slice(1) : letter}`;
+    if (coef == -1) return (letter.startsWith('*')) ? `-${letter.slice(1)}` : `-${letter}`;
+    if (coef > 1) return `${isFirst ? '' : '+'} ${coef}${letter}`;
+    return `${coef}${letter}`;
+
+};
+
 module.exports = {
-    generateSystem, pivotGauss, formatTerm
+    generateSystem, pivotGauss, formatTerm, normalizeSigns
 };
