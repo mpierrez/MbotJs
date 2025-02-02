@@ -22,8 +22,8 @@ module.exports = {
         {\\color{DarkGreen}v2 = (${family[1][0]}, ${family[1][1]}, ${family[1][2]})} \\\\
         {\\color{Blue}v3 = (${family[2][0]}, ${family[2][1]}, ${family[2][2]}}) \\\\\\\\
 
-        ${explanation != null ? `\\text{La famille est libre car ${explanation}} \\\\\\\\` 
-            : `\\text{La famille est liee (non libre), car il n y a aucune relation entre les differents vecteurs.}`}
+        ${explanation != null ? `\\text{La famille est liee car ${explanation}} \\\\\\\\` 
+            : `\\text{La famille est libre (non liee), car il n y a aucune relation entre les differents vecteurs.}`}
 
         \\text{${explanation2 != null ? explanation2 : ''}} \\\\
         \\text{${explanation3 != null ? explanation3 : ''}} \\\\
