@@ -10,9 +10,11 @@ function generateObviousFamilyLinearlyDependent() {
 
     // Appliquer une relation entre les vecteurs
     // Choisir une relation aléatoire
-    let relationType = Math.floor(Math.random() * 6); // 0: v1+v2=v3, 1: v1*v2=v3, 2: 2v1=v2+v3
+    // let relationType = Math.floor(Math.random() * 6); // 0: v1+v2=v3, 1: v1*v2=v3, 2: 2v1=v2+v3
+    let relationType = 2;
     let g, h, i;
 
+    console.log(relationType);
     if (relationType === 0) {
         // Relation v1 + v2 = v3
         g = a + d;
@@ -23,21 +25,26 @@ function generateObviousFamilyLinearlyDependent() {
         explanation3 = `({\\color{Red}${a}} + {\\color{DarkGreen}${d}}, {\\color{Red}${b}} + {\\color{DarkGreen}${e}}, {\\color{Red}${c}} + {\\color{DarkGreen}${f}}) = ({\\color{Blue}${g}}, {\\color{Blue}${h}}, {\\color{Blue}${i}}).`;
 
     } else if (relationType === 1) {
-        // Relation v1 * v2 = v3
-        g = a * d;
-        h = b * e;
-        i = c * f;
-        explanation = `chaque composante du troisieme vecteur est le produit des composantes correspondantes des deux premiers vecteurs`
-        explanation2 = `En d'autres termes, v1 * v2 = v3 \\textit{(ou v3 / v2 = v1 ou v3 / v1 = v2)}:`;
-        explanation3 = `({\\color{Red}${a}} * {\\color{DarkGreen}${d}}, {\\color{Red}${b}} * {\\color{DarkGreen}${e}}, {\\color{Red}${c}} * {\\color{DarkGreen}${f}}) = ({\\color{Blue}${g}}, {\\color{Blue}${h}}, {\\color{Blue}${i}}).`;
+        // Relation 2v1 + v2 = v3
+        g = 2 * a + d;
+        h = 2 * b + e;
+        i = 2 * c + f;
+        explanation = `chaque composante du troisieme vecteur est la somme des composantes correspondantes des deux premiers vecteurs`
+        explanation2 = `En d'autres termes, 2v1 + v2 = v3 \\textit{(ou v3 - v2 = 2v1 ou v3 - 2v1 = v2)}:`
+        explanation3 = `(2*{\\color{Red}${a}} + {\\color{DarkGreen}${d}}, 2*{\\color{Red}${b}} + {\\color{DarkGreen}${e}}, 2*{\\color{Red}${c}} + {\\color{DarkGreen}${f}}) = ({\\color{Blue}${g}}, {\\color{Blue}${h}}, {\\color{Blue}${i}}).`;
     } else if (relationType === 2) {
-        // Relation v1 * v3 = v2
-        g = a * d;
-        h = b * e;
-        i = c * f;
-        explanation = `chaque composante du deuxieme vecteur est le produit des composantes correspondantes du premier vecteur et du troisieme vecteur`
-        explanation2 = `En d'autres termes, v1 * v3 = v2 \\textit{(ou v2 / v3 = v1 ou v2 / v1 = v3)}:`;
-        explanation3 = `({\\color{Red}${a}} * {\\color{DarkGreen}${d}}, {\\color{Red}${b}} * {\\color{DarkGreen}${e}}, {\\color{Red}${c}} * {\\color{DarkGreen}${f}}) = ({\\color{Blue}${g}}, {\\color{Blue}${h}}, {\\color{Blue}${i}}).`;
+        // Relation 2v3 + v1 = v2
+        g = Math.floor(Math.random() * 11) - 5;
+        h = Math.floor(Math.random() * 11) - 5;
+        i = Math.floor(Math.random() * 11) - 5;
+
+        d = 2 * g + a;
+        e = 2 * h + b;
+        f = 2 * i + c;
+
+        explanation = `chaque composante du deuxieme vecteur est la somme des composantes correspondantes du premier vecteur et du double du troisieme vecteur`
+        explanation2 = `En d'autres termes, 2v3 + v1 = v2 \\textit{(ou v2 - v1 = 2v3 ou v2 - 2v3 = v1)}:`
+        explanation3 = `(2*{\\color{Blue}${g}} + {\\color{Red}${a}}, 2*{\\color{Blue}${h}} + {\\color{Red}${b}}, 2*{\\color{Blue}${i}} + {\\color{Red}${c}}) = ({\\color{DarkGreen}${d}}, {\\color{DarkGreen}${e}}, {\\color{DarkGreen}${f}}).`;
     } else if (relationType === 3) {
         // Relation v1 - v2 = v3
         g = a - d;
