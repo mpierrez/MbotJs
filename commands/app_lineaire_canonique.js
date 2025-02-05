@@ -36,17 +36,17 @@ module.exports = {
         const explanation = `\\begin{array}{c}
         \\text{-} \\\\\\\\
 
+        \\text{Pour rappel, la base canonique est la base suivante :} \\\\
+        e1 = (1, 0, 0) \\\\
+        e2 = (0, 1, 0) \\\\
+        e3 = (0, 0, 1) \\\\\\\\
+
         \\text{Nous avons les equations suivantes :} \\\\
         \\begin{cases}
             ${normalizeSigns(system.coefficients[0][0], 'x', true)} ${normalizeSigns(system.coefficients[0][1], 'y')} ${normalizeSigns(system.coefficients[0][2], 'z')} \\\\
             ${normalizeSigns(system.coefficients[1][0], 'x', true)} ${normalizeSigns(system.coefficients[1][1], 'y')} ${normalizeSigns(system.coefficients[1][2], 'z')} \\\\
             ${normalizeSigns(system.coefficients[2][0], 'x', true)} ${normalizeSigns(system.coefficients[2][1], 'y')} ${normalizeSigns(system.coefficients[2][2], 'z')} \\\\    
         \\end{cases} \\\\\\\\
-
-        \\text{Pour rappel, la base canonique est la base suivante :} \\\\
-        e1 = (1, 0, 0) \\\\
-        e2 = (0, 1, 0) \\\\
-        e3 = (0, 0, 1) \\\\\\\\
 
         \\text{Il suffit donc de remplacer les x, y et z de chaque vecteur par les coefficients de la matrice pour obtenir la matrice de l'application linéaire.} \\\\\\\\
 
@@ -74,7 +74,7 @@ module.exports = {
         \\end{array}`;
 
         // Génération des images
-        const attachmentStatement = new AttachmentBuilder(`https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;\\begin{align}${applicationLineaireToLatex(system)}\\end{align}`, { name: 'application_lineaire.png' });
+        const attachmentStatement = new AttachmentBuilder(`https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;\\begin{align}\\text{-}\\\\${applicationLineaireToLatex(system)}\\\\\\text{-}\\end{align}`, { name: 'application_lineaire.png' });
         const attachmentResult = new AttachmentBuilder(`https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;${encodeURIComponent(explanation)}`, { name: 'SPOILER_result.png' });
 
         // Envoi de l'énoncé et de la solution à l'utilisateur

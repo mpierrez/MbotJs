@@ -69,14 +69,13 @@ const combinaisonLineaireToLatex = (v1, v2, v3, w) => {
 }
 
 const applicationLineaireToLatex = (system) => {
-    return `\\text{-} \\\\\\\\
+    return `
         \\forall (x,y,z) \\in \\mathbb{R}^3 : 
             \\left< f(x,y,z) = 
                 ${normalizeSigns(system.coefficients[0][0], 'x', true)} ${normalizeSigns(system.coefficients[0][1], 'y')} ${normalizeSigns(system.coefficients[0][2], 'z')} \\:; \\:
                 ${normalizeSigns(system.coefficients[1][0], 'x', true)} ${normalizeSigns(system.coefficients[1][1], 'y')} ${normalizeSigns(system.coefficients[1][2], 'z')} \\:; \\:
                 ${normalizeSigns(system.coefficients[2][0], 'x', true)} ${normalizeSigns(system.coefficients[2][1], 'y')} ${normalizeSigns(system.coefficients[2][2], 'z')}
-            \\right> \\\\\\\\
-        \\text{-}`
+            \\right>`
 };
 
 module.exports = {

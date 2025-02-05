@@ -10,8 +10,7 @@ function generateObviousFamilyLinearlyDependent() {
 
     // Appliquer une relation entre les vecteurs
     // Choisir une relation aléatoire
-    // let relationType = Math.floor(Math.random() * 6); // 0: v1+v2=v3, 1: v1*v2=v3, 2: 2v1=v2+v3
-    let relationType = 2;
+    let relationType = Math.floor(Math.random() * 6); // 0: v1+v2=v3, 1: v1*v2=v3, 2: 2v1=v2+v3
     let g, h, i;
 
     console.log(relationType);
