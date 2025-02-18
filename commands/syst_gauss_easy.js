@@ -99,7 +99,7 @@ module.exports = {
         const attachmentResult = new AttachmentBuilder(`https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;${encodeURIComponent(resultExplanation)}`, { name: 'SPOILER_result.png' });
         
         // Envoi de l'énoncé et de la solution à l'utilisateur
-        await interaction.channel.send({ content: statement, files: [attachmentStatement] });
-        await interaction.channel.send({ content: `**Solution détaillée :**`, files: [attachmentResult] });
+        await interaction.user.send({ content: statement, files: [attachmentStatement] });
+        await interaction.user.send({ content: `**Solution détaillée :**`, files: [attachmentResult] });
     }
 };
