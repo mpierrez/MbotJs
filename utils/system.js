@@ -1,3 +1,5 @@
+const { determinantSarrus } = require("./matrix");
+
 // Fonction pour générer un système d'équations 3x3 avec des coefficients aléatoires
 const generateSystem = (n, isResolvable=true) => {
     const coefficients = [];
@@ -28,6 +30,54 @@ const generateSystem = (n, isResolvable=true) => {
 
         coefficients.push([a, b, c]); // Ajouter les coefficients de l'équation
         results.push(result); // Ajouter le résultat
+    }
+
+    return { coefficients, results };
+};
+
+// Fonction pour générer un système de manière aléatoire facile à résoudre
+const generateEasySystem = (n = 3) => {
+    let coefficients, results;
+    let det = 0;
+    let attempts = 0;  // Limiter les tentatives pour éviter boucle infinie
+
+    while (det === 0 && attempts < 100) {
+        coefficients = [];
+        results = [];
+
+        // Créer une solution aléatoire avec des entiers entre -5 et 5
+        const solution = Array.from({ length: n }, () => Math.floor(Math.random() * 11) - 5);
+
+        // Construire les lignes de la matrice
+        for (let i = 0; i < n; i++) {
+            let row = Array.from({ length: n }, () => 0);
+
+            // Remplir la diagonale avec des entiers entre -3 et 3
+            row[i] = Math.floor(Math.random() * 4) * 2;  // Coefficient diagonal entre -6 et 6 (pas de 1)
+
+            // Remplir la partie hors diagonale avec des valeurs multiples de 2 ou 3
+            for (let j = 0; j < n; j++) {
+                if (i !== j) {
+                    // Choisir des coefficients comme multiples de 2 ou 3
+                    row[j] = Math.random() < 0.5 ? Math.floor(Math.random() * 3) * 2 : Math.floor(Math.random() * 3) * 3;
+                }
+            }
+
+            // Calculer le résultat de l'équation (produit matriciel)
+            const result = row.reduce((sum, coeff, idx) => sum + coeff * solution[idx], 0);
+
+            coefficients.push(row);
+            results.push(result);
+        }
+
+        // Vérifier que le déterminant est non nul (condition pour garantir une solution unique)
+        det = coefficients.reduce((determinant, row, i) => determinant * row[i], 1);
+
+        attempts++; // Augmenter le nombre de tentatives
+    }
+
+    if (attempts === 100) {
+        throw new Error("Échec de la génération du système après plusieurs tentatives.");
     }
 
     return { coefficients, results };
@@ -108,7 +158,8 @@ const formatTerm = (coef, vector, color) => {
     return `${coef} * {\\color{${color}}\\begin{pmatrix} ${vector.x} \\\\ ${vector.y} \\\\ ${vector.z} \\end{pmatrix}}`;
 };
 
-const normalizeSigns = (coef, letter, isFirst = false) => {
+const normalizeSigns = (coef, letter, lastCoeff = 0, isFirst = false) => {
+    if(lastCoeff === 0) isFirst = true;
     if (coef == 0) return '';
     if (coef == 1) return `${isFirst ? '' : '+'}` + `${letter.startsWith('*') ? letter.slice(1) : letter}`;
     if (coef == -1) return (letter.startsWith('*')) ? `-${letter.slice(1)}` : `-${letter}`;
@@ -118,5 +169,5 @@ const normalizeSigns = (coef, letter, isFirst = false) => {
 };
 
 module.exports = {
-    generateSystem, pivotGauss, formatTerm, normalizeSigns
+    generateSystem, pivotGauss, formatTerm, normalizeSigns, generateEasySystem
 };
