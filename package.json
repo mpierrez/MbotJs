@@ -10,7 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^2.4.0",
+    "@myriaddreamin/typst-ts-node-compiler": "^0.6.1-rc3",
     "discord-api-types": "^0.37.103",
-    "discord.js": "^14.16.3"
+    "discord.js": "^14.16.3",
+    "mathjs": "^14.2.1",
+    "typst": "^0.10.0-6"
   }
 }

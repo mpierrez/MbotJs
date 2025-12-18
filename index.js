@@ -1,3 +1,9 @@
+try {
+  process.loadEnvFile();
+} catch (e) {
+  console.warn("No .env file found or supported, relying on system environment variables.");
+}
+
 const Discord = require('discord.js');
 const intents = new Discord.IntentsBitField(3276799);
 const bot = new Discord.Client({intents});

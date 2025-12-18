@@ -1,26 +1,31 @@
 const { AttachmentBuilder } = require("discord.js");
-const { getCofactor, generateMatrix } = require("../utils/matrix");
-const { matrixToLatex } = require("../utils/latex");
+const { getCofactor, generateMatrix } = require("../../utils/matrix");
+const { matrixToLatex } = require("../../utils/latex");
 
 module.exports = {
-    name: "deter_cofacteur",
-    description: "Trouver le déterminant d'une matrice 3x3 avec la méthode des cofacteurs",
+  name: "deter_cofacteur",
+  description:
+    "Trouver le déterminant d'une matrice 3x3 avec la méthode des cofacteurs",
+  category: "algebre",
 
-    async run(bot, interaction) {
-        const matrix = generateMatrix(3);
-        const c11 = getCofactor(matrix, 1, 1);
-        const c12 = getCofactor(matrix, 1, 2);
-        const c13 = getCofactor(matrix, 1, 3);
+  async run(bot, interaction) {
+    const matrix = generateMatrix(3);
+    const c11 = getCofactor(matrix, 1, 1);
+    const c12 = getCofactor(matrix, 1, 2);
+    const c13 = getCofactor(matrix, 1, 3);
 
-        const minorDeterminant = matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1];
-        const matrixDeterminant = matrix[0][0] * c11 + matrix[0][1] * c12 + matrix[0][2] * c13;
+    const minorDeterminant =
+      matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1];
+    const matrixDeterminant =
+      matrix[0][0] * c11 + matrix[0][1] * c12 + matrix[0][2] * c13;
 
-        // Enoncé de l'exercice
-        const statement = `**Déterminant d'une matrice 3x3 avec la méthode des cofacteurs**\n\n` + 
-                          `Trouvez le déterminant de la matrice M en utilisant la méthode des cofacteurs :\n`;
+    // Enoncé de l'exercice
+    const statement =
+      `**Déterminant d'une matrice 3x3 avec la méthode des cofacteurs**\n\n` +
+      `Trouvez le déterminant de la matrice M en utilisant la méthode des cofacteurs :\n`;
 
-        // Résultat de l'exercice
-        const explanation = `\\begin{array}{c}
+    // Résultat de l'exercice
+    const explanation = `\\begin{array}{c}
         \\text{-} \\\\\\\\
         \\text{Nous avons la matrice suivante :} \\\\
         \\begin{pmatrix}
@@ -85,12 +90,28 @@ module.exports = {
         - \\\\
         \\end{array}`;
 
-        // Génération des images
-        const attachmentStatement = new AttachmentBuilder(`https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;\\begin{align}M=${encodeURIComponent(matrixToLatex(matrix))}\\end{align}`, { name: 'matrix.png' });
-        const attachmentResult = new AttachmentBuilder(`https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;${encodeURIComponent(explanation)}`, { name: 'SPOILER_result.png' });
+    // Génération des images
+    const attachmentStatement = new AttachmentBuilder(
+      `https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;\\begin{align}M=${encodeURIComponent(
+        matrixToLatex(matrix)
+      )}\\end{align}`,
+      { name: "matrix.png" }
+    );
+    const attachmentResult = new AttachmentBuilder(
+      `https://latex.codecogs.com/png.latex?\\dpi{300}&space;\\bg_white&space;${encodeURIComponent(
+        explanation
+      )}`,
+      { name: "SPOILER_result.png" }
+    );
 
-        // Envoi de l'énoncé et de la solution à l'utilisateur
-        await interaction.user.send({ content: statement, files: [attachmentStatement] });
-        await interaction.user.send({ content: `**Solution détaillée :**`, files: [attachmentResult] });    
-    }
+    // Envoi de l'énoncé et de la solution à l'utilisateur
+    await interaction.user.send({
+      content: statement,
+      files: [attachmentStatement],
+    });
+    await interaction.user.send({
+      content: `**Solution détaillée :**`,
+      files: [attachmentResult],
+    });
+  },
 };
