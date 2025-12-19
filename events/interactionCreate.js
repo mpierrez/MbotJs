@@ -2,15 +2,17 @@ const Discord = require("discord.js");
 
 module.exports = async (bot, interaction) => {
   if (interaction.type === Discord.InteractionType.ApplicationCommand) {
-    if (
-      interaction.channelId !== "1302682242157383762" &&
-      interaction.channelId !== "1451143867905740831"
-    ) {
-      return interaction.reply({
-        content:
-          "Vous ne pouvez utiliser cette commande que dans les threads suivants :\n- **Algèbre** : <#1302682242157383762>\n- **Recherche opérationnelle** : <#1451143867905740831>.",
-        ephemeral: true,
-      });
+    if (process.env["ENV"] === "production") {
+      if (
+        interaction.channelId !== "1302682242157383762" &&
+        interaction.channelId !== "1451143867905740831"
+      ) {
+        return interaction.reply({
+          content:
+            "Vous ne pouvez utiliser cette commande que dans les threads suivants :\n- **Algèbre** : <#1302682242157383762>\n- **Recherche opérationnelle** : <#1451143867905740831>.",
+          ephemeral: true,
+        });
+      }
     }
 
     try {

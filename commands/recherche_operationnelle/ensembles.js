@@ -5,7 +5,7 @@ const { compile } = require("../../utils/typst");
 module.exports = {
   name: "ensembles",
   description:
-    "Génère un exercice de théorie des ensembles (Venn, Karnaugh, Arbre)",
+    "Génère un exercice de théorie des ensembles (Arbre, Karnaugh, Venn)",
   category: "recherche_operationnelle",
 
   async run(bot, interaction) {
@@ -14,6 +14,7 @@ module.exports = {
     const problem = generateSetProblem();
 
     const embedContent =
+      `## Exercice : Théorie des ensembles\n` +
       `*Contexte : ${problem.scenario.name}*\n` +
       `Dans un groupe, nous avons les informations suivantes :\n` +
       problem.statement.map((s) => `- ${s}`).join("\n") +
