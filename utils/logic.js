@@ -931,173 +931,186 @@ const generateDijkstraProblem = () => {
   const nodes = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const activeNodes = nodes.slice(0, 7);
   const numNodes = activeNodes.length;
+  const startNode = 0; // A
 
   const radiusX = 6;
   const radiusY = 4;
 
-  const nodePos = activeNodes.map((_, i) => {
-    const angle = (2 * Math.PI * i) / numNodes;
-    const jitterX = (Math.random() - 0.5) * 0.5;
-    const jitterY = (Math.random() - 0.5) * 0.5;
-    return {
-      x: radiusX * Math.cos(angle) + jitterX + 8,
-      y: radiusY * Math.sin(angle) + jitterY + 6,
-      name: activeNodes[i],
-    };
-  });
-
-  const edges = [];
-  const addedEdges = new Set();
-  const adjacency = Array(numNodes)
-    .fill(null)
-    .map(() => []);
-
-  const intersect = (a, b, c, d) => {
-    const ccw = (p1, p2, p3) => {
-      return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
-    };
-    return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
-  };
-
-  const doesEdgeIntersectAny = (uIdx, vIdx) => {
-    const p1 = nodePos[uIdx];
-    const p2 = nodePos[vIdx];
-    for (let edge of edges) {
-      if (
-        edge.u === uIdx ||
-        edge.u === vIdx ||
-        edge.v === uIdx ||
-        edge.v === vIdx
-      )
-        continue;
-      const p3 = nodePos[edge.u];
-      const p4 = nodePos[edge.v];
-      if (intersect(p1, p2, p3, p4)) return true;
-    }
-    return false;
-  };
-
-  const addEdge = (u, v, w) => {
-    if (u === v) return false;
-    const key = `${Math.min(u, v)}-${Math.max(u, v)}`;
-    if (addedEdges.has(key)) return false;
-
-    // Check degree constraint
-    // Allow slightly higher degree for central nodes if needed, but aim for 3 max
-    // Let's be strict: if both already have degree >= 3, don't add
-    // Or if one has >= 4, don't add.
-    if (adjacency[u].length >= 3 || adjacency[v].length >= 3) return false;
-
-    if (doesEdgeIntersectAny(u, v)) return false;
-
-    edges.push({ u, v, w });
-    addedEdges.add(key);
-    adjacency[u].push({ to: v, w });
-    adjacency[v].push({ to: u, w });
-    return true;
-  };
-
-  // 1. Cercle extérieur (degree becomes 2 for all)
-  const circleOrder = Array.from({ length: numNodes }, (_, i) => i);
-  // Shuffle circle order to make it defined but random
-  for (let i = numNodes - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [circleOrder[i], circleOrder[j]] = [circleOrder[j], circleOrder[i]];
-  }
-
-  // Actually, circle constraint might be too much if we want max degree 3.
-  // Let's just create a spanning tree then add random edges.
-  // OR keep circle but be careful with extra edges.
-
-  // Let's stick to circle for structure guarantee, then add sparse internal edges.
-  // But use the natural index order for the circle to keep it "round" visually with our node positions.
-  for (let i = 0; i < numNodes; i++) {
-    const nextNode = (i + 1) % numNodes;
-    edges.push({ u: i, v: nextNode, w: Math.floor(Math.random() * 20) + 5 });
-    addedEdges.add(`${Math.min(i, nextNode)}-${Math.max(i, nextNode)}`);
-    adjacency[i].push({ to: nextNode, w: edges[edges.length - 1].w });
-    adjacency[nextNode].push({ to: i, w: edges[edges.length - 1].w });
-  }
-
-  // 2. Arêtes internes
+  let validScenario = null;
   let attempts = 0;
-  // Try to add a few shortcuts without crossing
-  while (edges.length < numNodes + 4 && attempts < 200) {
+
+  // Wrap generation in a loop to ensure path length >= 3
+  while (!validScenario && attempts < 100) {
     attempts++;
-    const u = Math.floor(Math.random() * numNodes);
-    const v = Math.floor(Math.random() * numNodes);
-    if (Math.abs(u - v) <= 1 || Math.abs(u - v) === numNodes - 1) continue;
 
-    // Add specific degree check for internal edges
-    if (adjacency[u].length >= 3 || adjacency[v].length >= 3) continue;
-
-    addEdge(u, v, Math.floor(Math.random() * 30) + 5);
-  }
-
-  // --- Résolution Dijkstra avec Historique ---
-  const startNode = 0; // A
-  let endNode = 0;
-
-  while (startNode === endNode) {
-    endNode = Math.floor(Math.random() * numNodes) + 1; // Sauf B
-    if (endNode >= numNodes) endNode = nodes[numNodes - 1];
-  }
-
-  const dist = Array(numNodes).fill(Infinity);
-  const prev = Array(numNodes).fill(null);
-  const visited = new Array(numNodes).fill(false);
-
-  dist[startNode] = 0;
-
-  const history = [];
-  // Add initialization state
-  history.push({
-    pivot: null,
-    dists: [...dist],
-    prevs: [...prev],
-    closed: [...visited],
-  });
-
-  let remainingNodes = new Set(activeNodes.map((_, i) => i));
-
-  while (remainingNodes.size > 0) {
-    let u = -1;
-    let minDist = Infinity;
-
-    remainingNodes.forEach((nodeIdx) => {
-      if (dist[nodeIdx] < minDist) {
-        minDist = dist[nodeIdx];
-        u = nodeIdx;
-      }
+    // 1. Setup Data Structures
+    const nodePos = activeNodes.map((_, i) => {
+      const angle = (2 * Math.PI * i) / numNodes;
+      const jitterX = (Math.random() - 0.5) * 0.5;
+      const jitterY = (Math.random() - 0.5) * 0.5;
+      return {
+        x: radiusX * Math.cos(angle) + jitterX + 8,
+        y: radiusY * Math.sin(angle) + jitterY + 6,
+        name: activeNodes[i],
+      };
     });
 
-    if (u === -1) break;
+    const edges = [];
+    const addedEdges = new Set();
+    const adjacency = Array(numNodes)
+      .fill(null)
+      .map(() => []);
 
-    remainingNodes.delete(u);
-    visited[u] = true;
+    const intersect = (a, b, c, d) => {
+      const ccw = (p1, p2, p3) => {
+        return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
+      };
+      return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+    };
 
-    for (let edge of adjacency[u]) {
-      const v = edge.to;
-      if (visited[v]) continue;
-
-      const newDist = dist[u] + edge.w;
-      if (newDist < dist[v]) {
-        dist[v] = newDist;
-        prev[v] = u;
+    const doesEdgeIntersectAny = (uIdx, vIdx) => {
+      const p1 = nodePos[uIdx];
+      const p2 = nodePos[vIdx];
+      for (let edge of edges) {
+        if (
+          edge.u === uIdx ||
+          edge.u === vIdx ||
+          edge.v === uIdx ||
+          edge.v === vIdx
+        )
+          continue;
+        const p3 = nodePos[edge.u];
+        const p4 = nodePos[edge.v];
+        if (intersect(p1, p2, p3, p4)) return true;
       }
+      return false;
+    };
+
+    const addEdge = (u, v, w) => {
+      if (u === v) return false;
+      const key = `${Math.min(u, v)}-${Math.max(u, v)}`;
+      if (addedEdges.has(key)) return false;
+
+      // Allow slightly higher degree for central nodes if needed, but aim for 3 max
+      if (adjacency[u].length >= 3 || adjacency[v].length >= 3) return false;
+
+      if (doesEdgeIntersectAny(u, v)) return false;
+
+      edges.push({ u, v, w });
+      addedEdges.add(key);
+      adjacency[u].push({ to: v, w });
+      adjacency[v].push({ to: u, w });
+      return true;
+    };
+
+    // 2. Generate Edges (Circle + Random)
+    for (let i = 0; i < numNodes; i++) {
+      const nextNode = (i + 1) % numNodes;
+      const w = Math.floor(Math.random() * 20) + 5;
+      edges.push({ u: i, v: nextNode, w });
+      addedEdges.add(`${Math.min(i, nextNode)}-${Math.max(i, nextNode)}`);
+      adjacency[i].push({ to: nextNode, w });
+      adjacency[nextNode].push({ to: i, w });
     }
 
+    let edgeAttempts = 0;
+    while (edges.length < numNodes + 4 && edgeAttempts < 200) {
+      edgeAttempts++;
+      const u = Math.floor(Math.random() * numNodes);
+      const v = Math.floor(Math.random() * numNodes);
+      if (Math.abs(u - v) <= 1 || Math.abs(u - v) === numNodes - 1) continue;
+      if (adjacency[u].length >= 3 || adjacency[v].length >= 3) continue;
+      addEdge(u, v, Math.floor(Math.random() * 30) + 5);
+    }
+
+    // 3. Run Dijkstra to check path lengths
+    const dist = Array(numNodes).fill(Infinity);
+    const prev = Array(numNodes).fill(null);
+    const visited = new Array(numNodes).fill(false);
+
+    dist[startNode] = 0;
+
+    const history = [];
     history.push({
-      pivot: u,
+      pivot: null,
       dists: [...dist],
       prevs: [...prev],
       closed: [...visited],
     });
 
-    if (u === endNode) {
-      // break;
+    let remainingNodes = new Set(activeNodes.map((_, i) => i));
+
+    while (remainingNodes.size > 0) {
+      let u = -1;
+      let minDist = Infinity;
+
+      remainingNodes.forEach((nodeIdx) => {
+        if (dist[nodeIdx] < minDist) {
+          minDist = dist[nodeIdx];
+          u = nodeIdx;
+        }
+      });
+
+      if (u === -1) break;
+
+      remainingNodes.delete(u);
+      visited[u] = true;
+
+      for (let edge of adjacency[u]) {
+        const v = edge.to;
+        if (visited[v]) continue;
+
+        const newDist = dist[u] + edge.w;
+        if (newDist < dist[v]) {
+          dist[v] = newDist;
+          prev[v] = u;
+        }
+      }
+
+      history.push({
+        pivot: u,
+        dists: [...dist],
+        prevs: [...prev],
+        closed: [...visited],
+      });
+    }
+
+    // 4. Check valid end nodes (hop count >= 3)
+    const validEnds = [];
+    for (let i = 1; i < numNodes; i++) {
+      if (dist[i] === Infinity) continue;
+      let hops = 0;
+      let curr = i;
+      while (curr !== startNode && curr !== null) {
+        curr = prev[curr];
+        hops++;
+      }
+      if (hops >= 3) {
+        validEnds.push(i);
+      }
+    }
+
+    if (validEnds.length > 0) {
+      const endNode = validEnds[Math.floor(Math.random() * validEnds.length)];
+      validScenario = {
+        nodePos,
+        edges,
+        dist,
+        prev,
+        history,
+        endNode,
+      };
     }
   }
+
+  // Fallback if loop fails (extremely unlikely given params)
+  if (!validScenario) {
+    // Just run once and take whatever
+    // (omitted for brevity as 100 attempts on 7 nodes is plenty)
+    return generateDijkstraProblem(); // Recursive retry as last resort
+  }
+
+  const { nodePos, edges, dist, prev, history, endNode } = validScenario;
 
   const path = [];
   let curr = endNode;
@@ -1166,28 +1179,21 @@ const generateDijkstraProblem = () => {
 
   const generateTableTypst = () => {
     let header = `[], ${activeNodes.map((n) => `[*${n}*]`).join(", ")}`;
-
-    // Remove the last row from display as requested
-    // Shift labels up: Row i (i>0) takes its label from history[i+1].pivot
     let displayRows = history.slice(0, -1);
 
     let rows = displayRows
       .map((step, stepIdx) => {
         let cells = [];
 
-        // Label calculation
         if (stepIdx === 0) {
           cells.push(`[*${activeNodes[startNode]}*]`);
         } else {
-          // Verify history[stepIdx + 1] exists (it should since we sliced one off, but let's be safe)
-          // If we are at the last of displayRows, stepIdx+1 is the index of the removed row.
           const labelPivot = history[stepIdx + 1]
             ? history[stepIdx + 1].pivot
             : step.pivot;
           cells.push(`[*${activeNodes[labelPivot]}*]`);
         }
 
-        // Determine next pivot (min unvisited) for boxing
         let nextPivot = -1;
         let minVal = Infinity;
 
@@ -1199,25 +1205,9 @@ const generateDijkstraProblem = () => {
         });
 
         activeNodes.forEach((_, nodeIdx) => {
-          // Closed check logic
-          // A node is considered "closed" for display X if it was closed in a PREVIOUS step
-          // But wait, step.closed represents the state AFTER the step processing.
-          // For Init step, closed is empty.
-          // For step 1 (Pivot A), A is closed in step.closed.
-          // Usually we show value for A in step 1? Or X?
-          // Standard: Init: 0. Step 1 (A): -.
-          // So if nodeIdx was closed in CURRENT step (or previous), we might show X.
-          // Actually, if nodeIdx is in step.closed, it means we don't update it anymore.
-          // But for the row where it JUST got closed (the row labelled with it), we usually skip it or show X?
-          // If Row Label is A. A has just been processed.
-          // So in Row A, column A is X.
-
           const isClosed = step.closed[nodeIdx];
 
           if (isClosed) {
-            // Exception: if it's the init row, nothing is closed yet (step.closed is all false).
-            // If it's the row where it became closed?
-            // step.closed[nodeIdx] is true.
             cells.push(`[X]`);
           } else {
             const d = step.dists[nodeIdx];
@@ -1307,9 +1297,260 @@ ${commonHeader}
     },
   };
 };
+
+const generateKruskalProblem = () => {
+  const nodes = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const numNodes = nodes.length;
+  // Layout similar to Prim/Dijkstra
+  const radiusX = 6;
+  const radiusY = 4;
+
+  const nodePos = nodes.map((_, i) => {
+    const angle = (2 * Math.PI * i) / numNodes;
+    const jitterX = (Math.random() - 0.5) * 0.5;
+    const jitterY = (Math.random() - 0.5) * 0.5;
+    return {
+      x: radiusX * Math.cos(angle) + jitterX + 8,
+      y: radiusY * Math.sin(angle) + jitterY + 6,
+      name: nodes[i],
+    };
+  });
+
+  const edges = [];
+  const addedEdges = new Set();
+
+  // Reuse intersection logic
+  const intersect = (a, b, c, d) => {
+    const ccw = (p1, p2, p3) => {
+      return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
+    };
+    return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+  };
+
+  const doesEdgeIntersectAny = (uIdx, vIdx) => {
+    const p1 = nodePos[uIdx];
+    const p2 = nodePos[vIdx];
+    for (let edge of edges) {
+      if (
+        edge.u === uIdx ||
+        edge.u === vIdx ||
+        edge.v === uIdx ||
+        edge.v === vIdx
+      )
+        continue;
+      const p3 = nodePos[edge.u];
+      const p4 = nodePos[edge.v];
+      if (intersect(p1, p2, p3, p4)) return true;
+    }
+    return false;
+  };
+
+  const addEdge = (u, v, w) => {
+    if (u === v) return false;
+    const key = `${Math.min(u, v)}-${Math.max(u, v)}`;
+    if (addedEdges.has(key)) return false;
+    if (doesEdgeIntersectAny(u, v)) return false;
+    edges.push({ u, v, w });
+    addedEdges.add(key);
+    return true;
+  };
+
+  // Build Graph
+  // 1. Circle
+  for (let i = 0; i < numNodes; i++) {
+    const nextNode = (i + 1) % numNodes;
+    addEdge(i, nextNode, Math.floor(Math.random() * 40) + 10);
+  }
+  // 2. Internal edges
+  let attempts = 0;
+  while (edges.length < numNodes + 6 && attempts < 200) {
+    attempts++;
+    const u = Math.floor(Math.random() * numNodes);
+    const v = Math.floor(Math.random() * numNodes);
+    if (Math.abs(u - v) <= 1 || Math.abs(u - v) === numNodes - 1) continue;
+    addEdge(u, v, Math.floor(Math.random() * 50) + 10);
+  }
+
+  // --- Solve Kruskal ---
+  // Sort edges by weight
+  const sortedEdges = [...edges].sort((a, b) => a.w - b.w);
+  const mstEdges = [];
+  const steps = [];
+  let totalWeight = 0;
+  let edgesCount = 0;
+
+  // Distinct colors for the steps
+  const stepColors = [
+    "blue",
+    "red",
+    "green",
+    "orange",
+    "purple",
+    "fuchsia",
+    "teal",
+    "olive",
+  ];
+
+  // Union-Find
+  const parent = Array.from({ length: numNodes }, (_, i) => i);
+  const find = (i) => {
+    if (parent[i] === i) return i;
+    return (parent[i] = find(parent[i]));
+  };
+  const union = (i, j) => {
+    const rootI = find(i);
+    const rootJ = find(j);
+    if (rootI !== rootJ) {
+      parent[rootI] = rootJ;
+      return true;
+    }
+    return false;
+  };
+
+  let continueLoop = true;
+  for (let i = 0; i < sortedEdges.length; i++) {
+    const edge = sortedEdges[i];
+
+    if (edgesCount === numNodes - 1 && continueLoop) {
+      steps.push({
+        type: "stop",
+        text: `🛑 STOP 🛑\n${numNodes - 1} arêtes validées\n(${nodes.length} sommets)`,
+      });
+      continueLoop = false;
+    }
+
+    const added = union(edge.u, edge.v);
+    if (added) {
+      const color = stepColors[edgesCount % stepColors.length];
+      mstEdges.push({ ...edge, order: edgesCount, color });
+      steps.push({
+        type: continueLoop ? "edge" : "skip",
+        edge,
+        added: true,
+        color,
+        order: edgesCount + 1,
+      });
+      totalWeight += edge.w;
+      edgesCount++;
+    } else {
+      steps.push({ type: continueLoop ? "edge" : "skip", edge, added: false });
+    }
+  }
+
+  // --- Typst ---
+  const generateGraphTypst = (showSolution) => {
+    let content = "";
+    edges.forEach((e) => {
+      const u = nodePos[e.u];
+      const v = nodePos[e.v];
+
+      // Check if e is in mstEdges (match by props usually safe here as edges objects are stable)
+      // Actually spread operator above created copies in mstEdges.
+      const mstEdge = mstEdges.find(
+        (me) => me.u === e.u && me.v === e.v && me.w === e.w,
+      );
+
+      let stroke = 'stroke: (paint: gray, dash: "dashed", thickness: 1pt)';
+      let weightColor = "maroon";
+      let weightWeight = "regular";
+
+      if (showSolution) {
+        if (mstEdge) {
+          stroke = `stroke: (paint: ${mstEdge.color}, thickness: 3pt)`;
+          weightColor = mstEdge.color;
+          weightWeight = "bold";
+        }
+      } else {
+        stroke = 'stroke: (paint: red, dash: "dashed", thickness: 1pt)';
+      }
+
+      content += `\n    #place(top + left, line(start: (${u.x}cm, ${u.y}cm), end: (${v.x}cm, ${v.y}cm), ${stroke}))`;
+
+      const mx = (u.x + v.x) / 2;
+      const my = (u.y + v.y) / 2;
+
+      content += `\n    #place(top + left, dx: ${mx}cm - 0.4cm, dy: ${my}cm - 0.25cm, rect(fill: rgb("ffffffdd"), inset: 1pt, stroke: none)[#text(fill: ${weightColor}, weight: "${weightWeight}")[${e.w}]])`;
+    });
+
+    nodePos.forEach((n) => {
+      content += `\n    #place(top + left, dx: ${n.x}cm - 0.4cm, dy: ${n.y}cm - 0.4cm, circle(radius: 0.4cm, fill: white, stroke: 1pt + black)[#align(center + horizon)[*${n.name}*]])`;
+    });
+    return content;
+  };
+
+  const stepsList = steps
+    .map((s) => {
+      if (s.type === "stop") {
+        return `text(fill: red, weight: "bold")[${s.text}]`;
+      }
+      const uName = nodes[s.edge.u];
+      const vName = nodes[s.edge.v];
+      if (s.added) {
+        return `text(fill: ${s.color})[${uName}-${vName} = ${s.edge.w} : ✓]`;
+      } else if (s.type === "edge") {
+        return `text(fill: gray)[${uName}-${vName} = ${s.edge.w} : ✗ (cycle)]`;
+      } else if (s.type === "skip") {
+        return `text(fill: gray)[${uName}-${vName} = ${s.edge.w} : ✗ (stop)]`;
+      }
+    })
+    .join(",\n");
+
+  const commonHeader = `
+#set page(width: 20cm, height: auto, margin: 1cm)
+#set text(font: "Roboto", size: 11pt)
+`;
+
+  const statement = `
+${commonHeader}
+#place(top + left, text(size: 16pt, weight: "bold")[Exercice : Algorithme de Kruskal])
+#v(1cm)
+Trouver l'Arbre Couvrant Minimum (ACM) en utilisant l'algorithme de Kruskal.
+
+#v(0.5cm)
+#box(width: 100%, height: 12cm, stroke: 1pt + black, radius: 5pt)[
+  ${generateGraphTypst(false)}
+]
+`;
+
+  const solution = `
+${commonHeader}
+#text(size: 16pt, fill: blue, weight: "bold")[Solution Kruskal]
+
+#grid(
+  columns: (1fr, 4fr),
+  gutter: 0.5cm,
+  [
+      *Étapes (ordre croissant) :*
+      #v(0.2cm)
+      #stack(dir: ttb, spacing: 0.2cm, 
+        ${stepsList}
+      )
+      #v(0.5cm)
+      *Poids total = ${totalWeight}*
+  ],
+  [
+      *Graphe final :*
+      #v(0.2cm)
+      #box(width: 100%, height: 12cm, stroke: 0.5pt + gray, radius: 5pt)[
+        ${generateGraphTypst(true)}
+     ]
+  ]
+)
+`;
+
+  return {
+    scenario: "Appliquez l'algorithme de Kruskal sur le graphe suivant.",
+    typst: {
+      statement,
+      solution,
+    },
+  };
+};
+
 module.exports = {
   generateSetProblem,
   generateGraphProblem,
   generatePrimProblem,
   generateDijkstraProblem,
+  generateKruskalProblem,
 };
