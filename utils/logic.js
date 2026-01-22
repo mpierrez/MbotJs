@@ -279,17 +279,17 @@ const generateSetProblem = () => {
          }
          
          #leaf(l2X, l2Y_NN, 0, 1, ${regions["000"]}, ${
-      regions["001"]
-    }, "A", "B")
+           regions["001"]
+         }, "A", "B")
          #leaf(l2X, l2Y_NO, 2, 3, ${regions["010"]}, ${
-      regions["011"]
-    }, "C", "D")
+           regions["011"]
+         }, "C", "D")
          #leaf(l2X, l2Y_ON, 4, 5, ${regions["100"]}, ${
-      regions["101"]
-    }, "E", "F")
+           regions["101"]
+         }, "E", "F")
          #leaf(l2X, l2Y_OO, 6, 7, ${regions["110"]}, ${
-      regions["111"]
-    }, "G", "H")
+           regions["111"]
+         }, "G", "H")
       ]
     ]
   ],
@@ -451,9 +451,9 @@ const generateGraphProblem = () => {
       right: ["X", "Y", "Z"],
       intro: (l, r) =>
         `Trois professeurs ${l.join(
-          ", "
+          ", ",
         )} devront donner lundi prochain un certain nombre d'heures de cours aux trois classes de Terminale ${r.join(
-          ", "
+          ", ",
         )} :`,
       lineFragment: (dest, count) =>
         `${count} heure${count > 1 ? "s" : ""} à ${dest}`,
@@ -467,9 +467,9 @@ const generateGraphProblem = () => {
       right: ["Machine A", "Machine B", "Machine C"],
       intro: (l, r) =>
         `Dans une usine, trois opérateurs ${l.join(
-          ", "
+          ", ",
         )} doivent effectuer des maintenance sur trois machines ${r.join(
-          ", "
+          ", ",
         )}.\nChaque maintenance dure 1 heure.\nVoici les besoins :`,
       lineFragment: (dest, count) => `${count} fois sur la ${dest}`,
       lineStart: (actor) => `- ${actor} doit intervenir `,
@@ -482,9 +482,9 @@ const generateGraphProblem = () => {
       right: ["Projet Alpha", "Projet Beta", "Projet Gamma"],
       intro: (l, r) =>
         `Trois freelances ${l.join(
-          ", "
+          ", ",
         )} se répartissent des missions sur trois projets ${r.join(
-          ", "
+          ", ",
         )}.\nUne mission correspond à une demi-journée de travail.\nVoici les besoins :`,
       lineFragment: (dest, count) =>
         `${count} mission${count > 1 ? "s" : ""} sur le ${dest}`,
@@ -537,7 +537,7 @@ const generateGraphProblem = () => {
 
     let pDegs = remaining.map((row) => row.reduce((a, b) => a + b, 0));
     let cDegs = [0, 1, 2].map(
-      (c) => remaining[0][c] + remaining[1][c] + remaining[2][c]
+      (c) => remaining[0][c] + remaining[1][c] + remaining[2][c],
     );
 
     let pIndices = [0, 1, 2].sort((a, b) => pDegs[b] - pDegs[a]);
@@ -546,7 +546,7 @@ const generateGraphProblem = () => {
       if (pDegs[p] === 0) continue;
 
       let possibleCs = [0, 1, 2].filter(
-        (c) => remaining[p][c] > 0 && !usedC.has(c)
+        (c) => remaining[p][c] > 0 && !usedC.has(c),
       );
 
       if (possibleCs.length > 0) {
@@ -668,9 +668,9 @@ const generateGraphProblem = () => {
             const ey = cy + offset * ny;
 
             return `place(top + left, line(start: (${sx.toFixed(
-              2
+              2,
             )}cm, ${sy.toFixed(2)}cm), end: (${ex.toFixed(2)}cm, ${ey.toFixed(
-              2
+              2,
             )}cm), stroke: (paint: ${color}, thickness: 2pt)))`;
           })
           .join("\n    ");
@@ -682,7 +682,7 @@ const generateGraphProblem = () => {
     let colors = (blue, red, green, orange, purple, fuchsia)
     let labels = (${Array.from(
       { length: schedule.length },
-      (_, i) => `"${scenarioData.timeName} ${i + 1}"`
+      (_, i) => `"${scenarioData.timeName} ${i + 1}"`,
     ).join(", ")})
     
     for i in range(0, ${schedule.length}) {
@@ -730,4 +730,586 @@ const generateGraphProblem = () => {
   };
 };
 
-module.exports = { generateSetProblem, generateGraphProblem };
+const generatePrimProblem = () => {
+  const nodes = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const numNodes = nodes.length;
+  const radiusX = 5;
+  const radiusY = 3.5;
+
+  const nodePos = nodes.map((_, i) => {
+    const angle = (2 * Math.PI * i) / numNodes;
+    const jitterX = (Math.random() - 0.5) * 0.5;
+    const jitterY = (Math.random() - 0.5) * 0.5;
+    return {
+      x: radiusX * Math.cos(angle) + jitterX + 7,
+      y: radiusY * Math.sin(angle) + jitterY + 5,
+      name: nodes[i],
+    };
+  });
+
+  const edges = [];
+  const addedEdges = new Set();
+
+  const intersect = (a, b, c, d) => {
+    const ccw = (p1, p2, p3) => {
+      return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
+    };
+    return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+  };
+
+  const doesEdgeIntersectAny = (uIdx, vIdx) => {
+    const p1 = nodePos[uIdx];
+    const p2 = nodePos[vIdx];
+
+    for (let edge of edges) {
+      if (
+        edge.u === uIdx ||
+        edge.u === vIdx ||
+        edge.v === uIdx ||
+        edge.v === vIdx
+      ) {
+        continue;
+      }
+      const p3 = nodePos[edge.u];
+      const p4 = nodePos[edge.v];
+
+      if (intersect(p1, p2, p3, p4)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const addEdge = (u, v, w) => {
+    if (u === v) return false;
+    const key = `${Math.min(u, v)}-${Math.max(u, v)}`;
+    if (addedEdges.has(key)) return false;
+
+    if (doesEdgeIntersectAny(u, v)) return false;
+
+    edges.push({ u, v, w });
+    addedEdges.add(key);
+    return true;
+  };
+
+  for (let i = 0; i < numNodes; i++) {
+    const nextNode = (i + 1) % numNodes;
+    const key = `${Math.min(i, nextNode)}-${Math.max(i, nextNode)}`;
+    edges.push({ u: i, v: nextNode, w: Math.floor(Math.random() * 40) + 10 });
+    addedEdges.add(key);
+  }
+
+  let attempts = 0;
+  while (edges.length < numNodes + 6 && attempts < 200) {
+    attempts++;
+    const u = Math.floor(Math.random() * numNodes);
+    const v = Math.floor(Math.random() * numNodes);
+
+    if (Math.abs(u - v) <= 1 || Math.abs(u - v) === numNodes - 1) continue;
+
+    addEdge(u, v, Math.floor(Math.random() * 50) + 10);
+  }
+
+  let visited = new Set([0]);
+  let mstEdges = [];
+  let detailedSteps = [`Source = ${nodes[0]}`];
+  let totalWeight = 0;
+
+  while (visited.size < numNodes) {
+    let minEdge = null;
+    let minW = Infinity;
+    let nextNode = -1;
+    let fromNode = -1;
+
+    for (let e of edges) {
+      const uVis = visited.has(e.u);
+      const vVis = visited.has(e.v);
+
+      if (uVis && !vVis) {
+        if (e.w < minW) {
+          minW = e.w;
+          minEdge = e;
+          nextNode = e.v;
+          fromNode = e.u;
+        }
+      } else if (!uVis && vVis) {
+        if (e.w < minW) {
+          minW = e.w;
+          minEdge = e;
+          nextNode = e.u;
+          fromNode = e.v;
+        }
+      }
+    }
+
+    if (minEdge) {
+      mstEdges.push(minEdge);
+      visited.add(nextNode);
+      totalWeight += minW;
+      detailedSteps.push(`${nodes[fromNode]},${nodes[nextNode]} = ${minW}`);
+    } else {
+      break;
+    }
+  }
+
+  detailedSteps.push(`\nSomme = ${totalWeight}`);
+
+  const generateTypstContent = (showSolution) => {
+    let content = "";
+
+    edges.forEach((e) => {
+      const u = nodePos[e.u];
+      const v = nodePos[e.v];
+      const isMst = showSolution && mstEdges.includes(e);
+
+      let stroke = 'stroke: (paint: red, dash: "dashed", thickness: 1pt)';
+
+      if (isMst) {
+        stroke = 'stroke: (paint: blue, thickness: 4pt, cap: "round")';
+      }
+
+      content += `\n    #place(top + left, line(start: (${u.x}cm, ${u.y}cm), end: (${v.x}cm, ${v.y}cm), ${stroke}))`;
+
+      const mx = (u.x + v.x) / 2;
+      const my = (u.y + v.y) / 2;
+      content += `\n    #place(top + left, dx: ${mx}cm - 0.4cm, dy: ${my}cm - 0.25cm, rect(fill: rgb("ffffffcc"), inset: 1pt, stroke: none)[#text(fill: maroon, weight: "bold")[${e.w}]])`;
+    });
+
+    nodePos.forEach((n) => {
+      content += `\n    #place(top + left, dx: ${n.x}cm - 0.4cm, dy: ${n.y}cm - 0.4cm, circle(radius: 0.4cm, fill: red, stroke: none)[#align(center + horizon)[#text(fill: white, weight: "bold")[${n.name}]]])`;
+    });
+
+    return content;
+  };
+
+  const commonHeader = `
+#set page(width: 20cm, height: 12cm, margin: 1cm)
+#set text(font: "Roboto", size: 12pt)
+`;
+
+  const statement = `
+${commonHeader}
+#place(top + left, text(size: 16pt, weight: "bold")[Exercice : Algorithme de Prim])
+#place(top + left, dy: 1cm)[Départ: *${nodes[0]}*]
+
+#place(top + left, dy: 1cm, dx: 0cm, box(width: 100%, height: 100%)[
+  ${generateTypstContent(false)}
+])
+  `;
+
+  const solution = `
+${commonHeader}
+#grid(
+    columns: (auto, 1fr),
+    gutter: 1cm,
+    [
+        #text(size: 18pt, fill: blue)[*Prim*]
+        #v(0.5cm)
+        #stack(dir: ttb, spacing: 0.2cm,
+            ${detailedSteps.map((s) => `text(11pt)[${s}]`).join(",\n            ")}
+        )
+    ],
+    [
+        #box(width: 100%, height: 100%)[
+            ${generateTypstContent(true)}
+        ]
+    ]
+)
+  `;
+
+  return {
+    scenario:
+      "Appliquez l'algorithme de Prim en partant du sommet donné sur l'image.",
+    typst: {
+      statement: statement,
+      solution: solution,
+    },
+  };
+};
+
+const generateDijkstraProblem = () => {
+  const nodes = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const activeNodes = nodes.slice(0, 7);
+  const numNodes = activeNodes.length;
+
+  const radiusX = 6;
+  const radiusY = 4;
+
+  const nodePos = activeNodes.map((_, i) => {
+    const angle = (2 * Math.PI * i) / numNodes;
+    const jitterX = (Math.random() - 0.5) * 0.5;
+    const jitterY = (Math.random() - 0.5) * 0.5;
+    return {
+      x: radiusX * Math.cos(angle) + jitterX + 8,
+      y: radiusY * Math.sin(angle) + jitterY + 6,
+      name: activeNodes[i],
+    };
+  });
+
+  const edges = [];
+  const addedEdges = new Set();
+  const adjacency = Array(numNodes)
+    .fill(null)
+    .map(() => []);
+
+  const intersect = (a, b, c, d) => {
+    const ccw = (p1, p2, p3) => {
+      return (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
+    };
+    return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+  };
+
+  const doesEdgeIntersectAny = (uIdx, vIdx) => {
+    const p1 = nodePos[uIdx];
+    const p2 = nodePos[vIdx];
+    for (let edge of edges) {
+      if (
+        edge.u === uIdx ||
+        edge.u === vIdx ||
+        edge.v === uIdx ||
+        edge.v === vIdx
+      )
+        continue;
+      const p3 = nodePos[edge.u];
+      const p4 = nodePos[edge.v];
+      if (intersect(p1, p2, p3, p4)) return true;
+    }
+    return false;
+  };
+
+  const addEdge = (u, v, w) => {
+    if (u === v) return false;
+    const key = `${Math.min(u, v)}-${Math.max(u, v)}`;
+    if (addedEdges.has(key)) return false;
+
+    // Check degree constraint
+    // Allow slightly higher degree for central nodes if needed, but aim for 3 max
+    // Let's be strict: if both already have degree >= 3, don't add
+    // Or if one has >= 4, don't add.
+    if (adjacency[u].length >= 3 || adjacency[v].length >= 3) return false;
+
+    if (doesEdgeIntersectAny(u, v)) return false;
+
+    edges.push({ u, v, w });
+    addedEdges.add(key);
+    adjacency[u].push({ to: v, w });
+    adjacency[v].push({ to: u, w });
+    return true;
+  };
+
+  // 1. Cercle extérieur (degree becomes 2 for all)
+  const circleOrder = Array.from({ length: numNodes }, (_, i) => i);
+  // Shuffle circle order to make it defined but random
+  for (let i = numNodes - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [circleOrder[i], circleOrder[j]] = [circleOrder[j], circleOrder[i]];
+  }
+
+  // Actually, circle constraint might be too much if we want max degree 3.
+  // Let's just create a spanning tree then add random edges.
+  // OR keep circle but be careful with extra edges.
+
+  // Let's stick to circle for structure guarantee, then add sparse internal edges.
+  // But use the natural index order for the circle to keep it "round" visually with our node positions.
+  for (let i = 0; i < numNodes; i++) {
+    const nextNode = (i + 1) % numNodes;
+    edges.push({ u: i, v: nextNode, w: Math.floor(Math.random() * 20) + 5 });
+    addedEdges.add(`${Math.min(i, nextNode)}-${Math.max(i, nextNode)}`);
+    adjacency[i].push({ to: nextNode, w: edges[edges.length - 1].w });
+    adjacency[nextNode].push({ to: i, w: edges[edges.length - 1].w });
+  }
+
+  // 2. Arêtes internes
+  let attempts = 0;
+  // Try to add a few shortcuts without crossing
+  while (edges.length < numNodes + 4 && attempts < 200) {
+    attempts++;
+    const u = Math.floor(Math.random() * numNodes);
+    const v = Math.floor(Math.random() * numNodes);
+    if (Math.abs(u - v) <= 1 || Math.abs(u - v) === numNodes - 1) continue;
+
+    // Add specific degree check for internal edges
+    if (adjacency[u].length >= 3 || adjacency[v].length >= 3) continue;
+
+    addEdge(u, v, Math.floor(Math.random() * 30) + 5);
+  }
+
+  // --- Résolution Dijkstra avec Historique ---
+  const startNode = 0; // A
+  let endNode = 0;
+
+  while (startNode === endNode) {
+    endNode = Math.floor(Math.random() * numNodes) + 1; // Sauf B
+    if (endNode >= numNodes) endNode = nodes[numNodes - 1];
+  }
+
+  const dist = Array(numNodes).fill(Infinity);
+  const prev = Array(numNodes).fill(null);
+  const visited = new Array(numNodes).fill(false);
+
+  dist[startNode] = 0;
+
+  const history = [];
+  // Add initialization state
+  history.push({
+    pivot: null,
+    dists: [...dist],
+    prevs: [...prev],
+    closed: [...visited],
+  });
+
+  let remainingNodes = new Set(activeNodes.map((_, i) => i));
+
+  while (remainingNodes.size > 0) {
+    let u = -1;
+    let minDist = Infinity;
+
+    remainingNodes.forEach((nodeIdx) => {
+      if (dist[nodeIdx] < minDist) {
+        minDist = dist[nodeIdx];
+        u = nodeIdx;
+      }
+    });
+
+    if (u === -1) break;
+
+    remainingNodes.delete(u);
+    visited[u] = true;
+
+    for (let edge of adjacency[u]) {
+      const v = edge.to;
+      if (visited[v]) continue;
+
+      const newDist = dist[u] + edge.w;
+      if (newDist < dist[v]) {
+        dist[v] = newDist;
+        prev[v] = u;
+      }
+    }
+
+    history.push({
+      pivot: u,
+      dists: [...dist],
+      prevs: [...prev],
+      closed: [...visited],
+    });
+
+    if (u === endNode) {
+      // break;
+    }
+  }
+
+  const path = [];
+  let curr = endNode;
+  if (dist[endNode] !== Infinity) {
+    while (curr !== null) {
+      path.unshift(curr);
+      curr = prev[curr];
+    }
+  }
+
+  const pathEdges = [];
+  for (let i = 0; i < path.length - 1; i++) {
+    const u = path[i];
+    const v = path[i + 1];
+    const edge = edges.find(
+      (e) => (e.u === u && e.v === v) || (e.u === v && e.v === u),
+    );
+    if (edge) pathEdges.push(edge);
+  }
+
+  // --- Génération Typst ---
+
+  const generateGraphTypst = (showSolution) => {
+    let content = "";
+    edges.forEach((e) => {
+      const u = nodePos[e.u];
+      const v = nodePos[e.v];
+      const isPath = showSolution && pathEdges.includes(e);
+
+      let stroke = 'stroke: (paint: gray, dash: "dashed", thickness: 1pt)';
+      let weightColor = "maroon";
+      let weightWeight = "regular";
+
+      if (showSolution) {
+        if (isPath) {
+          stroke = "stroke: (paint: blue, thickness: 3pt)";
+          weightColor = "blue";
+          weightWeight = "bold";
+        }
+      } else {
+        stroke = "stroke: (paint: red, thickness: 1pt)";
+      }
+
+      content += `\n    #place(top + left, line(start: (${u.x}cm, ${u.y}cm), end: (${v.x}cm, ${v.y}cm), ${stroke}))`;
+
+      const mx = (u.x + v.x) / 2;
+      const my = (u.y + v.y) / 2;
+      content += `\n    #place(top + left, dx: ${mx}cm - 0.4cm, dy: ${my}cm - 0.25cm, rect(fill: rgb("ffffffdd"), inset: 1pt, stroke: none)[#text(fill: ${weightColor}, weight: "${weightWeight}")[${e.w}]])`;
+    });
+
+    nodePos.forEach((n, i) => {
+      let fill = "white";
+      let stroke = "2pt + red";
+      if (showSolution) {
+        if (path.includes(i)) {
+          fill = 'rgb("e6f0ff")';
+          stroke = "2pt + blue";
+        } else {
+          stroke = "1pt + gray";
+        }
+      }
+      content += `\n    #place(top + left, dx: ${n.x}cm - 0.4cm, dy: ${n.y}cm - 0.4cm, circle(radius: 0.4cm, fill: ${fill}, stroke: ${stroke})[#align(center + horizon)[*${n.name}*]])`;
+    });
+    return content;
+  };
+
+  const generateTableTypst = () => {
+    let header = `[], ${activeNodes.map((n) => `[*${n}*]`).join(", ")}`;
+
+    // Remove the last row from display as requested
+    // Shift labels up: Row i (i>0) takes its label from history[i+1].pivot
+    let displayRows = history.slice(0, -1);
+
+    let rows = displayRows
+      .map((step, stepIdx) => {
+        let cells = [];
+
+        // Label calculation
+        if (stepIdx === 0) {
+          cells.push(`[*${activeNodes[startNode]}*]`);
+        } else {
+          // Verify history[stepIdx + 1] exists (it should since we sliced one off, but let's be safe)
+          // If we are at the last of displayRows, stepIdx+1 is the index of the removed row.
+          const labelPivot = history[stepIdx + 1]
+            ? history[stepIdx + 1].pivot
+            : step.pivot;
+          cells.push(`[*${activeNodes[labelPivot]}*]`);
+        }
+
+        // Determine next pivot (min unvisited) for boxing
+        let nextPivot = -1;
+        let minVal = Infinity;
+
+        activeNodes.forEach((_, idx) => {
+          if (!step.closed[idx] && step.dists[idx] < minVal) {
+            minVal = step.dists[idx];
+            nextPivot = idx;
+          }
+        });
+
+        activeNodes.forEach((_, nodeIdx) => {
+          // Closed check logic
+          // A node is considered "closed" for display X if it was closed in a PREVIOUS step
+          // But wait, step.closed represents the state AFTER the step processing.
+          // For Init step, closed is empty.
+          // For step 1 (Pivot A), A is closed in step.closed.
+          // Usually we show value for A in step 1? Or X?
+          // Standard: Init: 0. Step 1 (A): -.
+          // So if nodeIdx was closed in CURRENT step (or previous), we might show X.
+          // Actually, if nodeIdx is in step.closed, it means we don't update it anymore.
+          // But for the row where it JUST got closed (the row labelled with it), we usually skip it or show X?
+          // If Row Label is A. A has just been processed.
+          // So in Row A, column A is X.
+
+          const isClosed = step.closed[nodeIdx];
+
+          if (isClosed) {
+            // Exception: if it's the init row, nothing is closed yet (step.closed is all false).
+            // If it's the row where it became closed?
+            // step.closed[nodeIdx] is true.
+            cells.push(`[X]`);
+          } else {
+            const d = step.dists[nodeIdx];
+            const p =
+              step.prevs[nodeIdx] !== null
+                ? activeNodes[step.prevs[nodeIdx]]
+                : "";
+
+            let valStr =
+              d === Infinity ? "$infinity$" : p ? `${d} ${p}` : `${d}`;
+
+            if (nodeIdx === nextPivot) {
+              cells.push(
+                `box(stroke: 1pt + blue, inset: 4pt, radius: 2pt)[*${valStr}*]`,
+              );
+            } else {
+              cells.push(`[${valStr}]`);
+            }
+          }
+        });
+        return cells.join(", ");
+      })
+      .join(",\n");
+
+    return `
+    #table(
+        columns: ${numNodes + 1},
+        align: center + horizon,
+        stroke: 0.5pt + gray,
+        inset: 8pt,
+        ${header},
+        ${rows}
+    )
+    `;
+  };
+
+  const commonHeader = `
+#set page(width: 20cm, height: auto, margin: 1cm)
+#set text(font: "Roboto", size: 11pt)
+`;
+
+  const statement = `
+${commonHeader}
+#place(top + left, text(size: 16pt, weight: "bold")[Exercice : Algorithme de Dijkstra])
+#v(1cm)
+Trouver le plus court chemin de *${activeNodes[startNode]}* à *${activeNodes[endNode]}*.
+
+#v(0.5cm)
+#box(width: 100%, height: 12cm, stroke: 1pt + black, radius: 5pt)[
+  ${generateGraphTypst(false)}
+]
+`;
+
+  const solution = `
+${commonHeader}
+#text(size: 16pt, fill: blue, weight: "bold")[Solution Dijkstra]
+
+#stack(
+  dir: ttb,
+  spacing: 0.5cm,
+  [
+     *Graphe résolu :*
+     #v(0.2cm)
+     #box(width: 100%, height: 12cm, stroke: 0.5pt + gray, radius: 5pt)[
+        ${generateGraphTypst(true)}
+     ]
+  ],
+  [
+     *Chemin final : ${path.map((i) => activeNodes[i]).join(" -> ")}* \
+     *Coût total : ${dist[endNode]}*
+  ],
+  [
+     #align(center)[
+        *Tableau des itérations :*
+        #v(0.2cm)
+        ${generateTableTypst()}
+     ]
+  ]
+)
+`;
+
+  return {
+    scenario: "Appliquez l'algorithme de Dijkstra sur le graphe suivant :",
+    typst: {
+      statement,
+      solution,
+    },
+  };
+};
+module.exports = {
+  generateSetProblem,
+  generateGraphProblem,
+  generatePrimProblem,
+  generateDijkstraProblem,
+};
