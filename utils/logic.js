@@ -485,13 +485,13 @@ const generateGraphProblem = () => {
           ", ",
         )} se répartissent des missions sur trois projets ${r.join(
           ", ",
-        )}.\nUne mission correspond à une demi-journée de travail.\nVoici les besoins :`,
+        )}.\nUne mission correspond à une journée de travail.\nVoici les besoins :`,
       lineFragment: (dest, count) =>
         `${count} mission${count > 1 ? "s" : ""} sur le ${dest}`,
       lineStart: (actor) => `- ${actor} a `,
       lineEmpty: (actor) => `- ${actor} n'a aucune mission.`,
       objName: "Missions",
-      timeName: "Demi-journée",
+      timeName: "Journée",
     },
   ];
 
